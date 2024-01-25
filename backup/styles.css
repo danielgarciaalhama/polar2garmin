@@ -20,9 +20,9 @@
     width: 1110px;
     padding: 10px;
 	position: absolute;
-    top: 50%;
+	top:200px;
     left: 50%;
-    transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(0%);
 }
 
 #textlayer {
@@ -79,6 +79,32 @@ input[type="file"]{
     border-right: 0px solid #A03030;
 }
 .inputgenerical:focus {
-  outline: none;
+    outline: none;
 }
 
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+  
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 300px;
+    border-color: #000000;
+    border-style:solid;
+    background-color: rgb(216, 214, 214);
+    color: #000000;
+    text-align: center;
+    border-radius: 6px;
+    border-width: 2px;
+    padding: 5px 0;
+  
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+  
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
