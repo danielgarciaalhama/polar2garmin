@@ -1,0 +1,84 @@
+#filediv {
+    background-color: lightblue;
+	height: 50px;
+}
+
+#selectdestination {
+	background-color: lightblue;
+}
+#convertlayer {
+	background-color: LightCoral;
+}
+#centerall {
+    margin: auto;
+    width: 1110px;
+    padding: 10px;
+	padding-top: 100px;
+}
+
+#centerall2 {
+    width: 1110px;
+    padding: 10px;
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}
+
+#textlayer {
+	align-content: center;
+	padding-top: 100px;
+}
+
+.filelabel {
+    float: left;
+    margin: 5px;
+    width: 350px;
+    height: 50px;
+	align-content: center;
+	padding-left: 25px;
+    border-radius: 10px;
+    cursor: pointer; cursor: hand;
+    border-top-style: none;
+    border-left-style: none;    
+    color: #fff;
+    background: #216895;
+    border-bottom: 0px solid #216895;
+    border-right: 0px solid #216895;
+}
+
+input[type="file"]{
+	float: left;
+    margin: 5px;
+    padding: 15px;
+    width: 350px;
+    height: 50px;
+    border-radius: 10px;
+    cursor: pointer; cursor: hand;
+    border-top-style: none;
+    border-left-style: none;    
+    color: #fff;
+    background: #216895;
+    border-bottom: 3px solid #216895;
+    border-right: 3px solid #216895;
+  
+}
+.inputgenerical {
+    float: left;
+    margin: 5px;
+    padding: 15px;
+    width: 350px;
+    height: 50px;
+    border-radius: 10px;
+    cursor: pointer; cursor: hand;
+    border-top-style: none;
+    border-left-style: none;    
+    color: #fff;
+	background:#BBBBBB;
+	border-bottom: 0px solid #A03030;
+    border-right: 0px solid #A03030;
+}
+.inputgenerical:focus {
+  outline: none;
+}
+
