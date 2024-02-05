@@ -3,133 +3,17 @@
 # PENDING:
 # -Add errors and warning as floating windows
 
-# TESTS TO RUN:
-# -Convert a file
-# -Convert an already converted file
-# -Try a different file extension
-# -Try with CAPS extension
-# -Try with several files where all are good
-# -Try with several files having one of them with a wrong extension
-# -Check size limit
-# -Convert one file with remove pauses
-# -Convert several files with remove pauses.
-
-# CLEAN CODE TODOS MARKED WITH CC
-
-
-# CC: Camel case for all own methods names
 
 $inipath = php_ini_loaded_file();
 
-# CC: Move enable errors to an individual proc depending on debuging option:
-/*error_reporting(E_ALL);
-ini_set('display_errors', 1);*/
-
+include("p2gconfig.php");
 include("filesmanagement.php");
 
-# CC: Move case filestoconvert set to an individual proc, probably it fits into filesmanagement.php file
 
-if (isset($_FILES['filetoconvert'])) {
-	$files = array_filter($_FILES["filetoconvert"]["tmp_name"]);
-	
-	# CC: fileisvalid could be moved here. The implementation on several files could be implemented, it will work for only one
-	# CC: fileisvalid will report the error, so in case is not valid, no message will be shown here.
-	$total = count($files);
-	if ($total == 1) {
-		# Check if the file is valid:
-		# CC: Do not set isvalid variable, use fileisvalid as the if condition
-		$isvalid = fileisvalid(0);
-		if ($isvalid) {
-			// echo "file valid";
-			# Get the filecontent:
-			$content = getFileOriginalContent(0);
-			if ($content === "") {
-				echo "The file can't be readed";
-			} else {
-				# Convert the Polar content to Garmin content:
-				# CC: Move testing data to a proc like: getTestingContent and before the if
-				//$content = '<Name>Correr</Name><Extensions></Extensions></Plan></Training><Creator xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Device_t"><Name>Polar M400</Name><UnitId>0</UnitId><ProductID>22</ProductID><Version><VersionMajor>1</VersionMajor><VersionMinor>8</VersionMinor><BuildMajor>0</BuildMajor><BuildMinor>0</BuildMinor></Version></Creator></Activity></Activities><Author xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Application_t"><Name>Polar Connect</Name><Build><Version><VersionMajor>0</VersionMajor><VersionMinor>0</VersionMinor></Version></Build><LangID>EN</LangID><PartNumber>XXX-XXXXX-XX</PartNumber></Author></TrainingCenterDatabase>';
-		
-				# file content have all data, delete problematic content:
-				transformContent($content);
-				# Return the content to the user:
-				header("Content-type: text/plain");
-				header("Content-Disposition: attachment; filename=" . basename($_FILES["filetoconvert"]["name"][0]));
-				echo $content;
-				exit();
-			}
-			
-		} else {
-			echo "The file is not valid";
-		}
-	} else {
-		
-		# Check if the files are valid:
-		for( $i=0 ; $i < $total ; $i++ ) {
-			# Check if the file is valid:
-			# CC: Do not set isvalid variable, use fileisvalid as the if condition
-			$isvalid = fileisvalid($i);
-			if (!$isvalid) {
-				echo "The file " . $_FILES["filetoconvert"]["name"][$i] . " is not valid";
-				exit();
-			}
-		}
-		
-		
-		$zip = new ZipArchive(); // Load zip library
-		$zip_name = "convertedfiles" . ".zip"; // Zip name
-		if($zip->open($zip_name, ZIPARCHIVE::CREATE)!==TRUE) {
-			// Opening zip file to load files
-			$error .= "* Sorry ZIP creation failed at this time";
-		}
-		
-		for( $i=0 ; $i < $total ; $i++ ) {
-	//		echo "file valid";
-			# Get the filecontent:
-			
-			$content = getFileOriginalContent($i);
-			if ($content === "") {
-				echo "The file can't be readed";
-			} else {
-				# Convert the Polar content to Garmin content:
-				# CC: Move testing data to a proc like: getTestingContent
-				//$content = '<Name>Correr</Name><Extensions></Extensions></Plan></Training><Creator xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Device_t"><Name>Polar M400</Name><UnitId>0</UnitId><ProductID>22</ProductID><Version><VersionMajor>1</VersionMajor><VersionMinor>8</VersionMinor><BuildMajor>0</BuildMajor><BuildMinor>0</BuildMinor></Version></Creator></Activity></Activities><Author xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Application_t"><Name>Polar Connect</Name><Build><Version><VersionMajor>0</VersionMajor><VersionMinor>0</VersionMinor></Version></Build><LangID>EN</LangID><PartNumber>XXX-XXXXX-XX</PartNumber></Author></TrainingCenterDatabase>';
-				
-				# file content have all data, delete problematic content:
-				transformContent($content);
-				
-				
-				$zip->addFromString($_FILES["filetoconvert"]["name"][$i], $content);
-				
-				# There are several files, store the new content:
-				# setFileNewContent($i,$content);
-				
-			}
-			
-			
-		}
-		
-		$zip->close();
-		
-		if(file_exists($zip_name))
-		{
-			
-			// push to download the zip
-			header('Content-type: application/zip');
-			header('Content-Disposition: attachment; filename="'.$zip_name.'"');
-			readfile($zip_name);
-			// remove zip file is exists in temp path
-			unlink($zip_name);
-		}
-		
-	}
-	
-	
-	 
-} 
-
+processFiles();
 
 ?>
+
 <!DOCTYPE html>
 <html>
 <head><title>Convert files online</title>

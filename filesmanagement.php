@@ -1,12 +1,9 @@
 <?php
 
 
-function fileisvalid($i) {
+function fileIsValid($i) {
 	// Check file size
-	# FILESIZE: 1.000.000 == 1MB
-	//print_r($_FILES["filetoconvert"]);
-	# CC: Max file size to a configuration constant
-	if ($_FILES["filetoconvert"]["size"][$i] > 20000000) {
+	if ($_FILES["filetoconvert"]["size"][$i] > MAX_FILE_SIZE) {
 		echo "Sorry, your file is too large.";
 		return FALSE;
 	}
@@ -79,35 +76,90 @@ function transformContent(&$content) {
 
 		$content = $newcontent;
 	}
-	# CC: removed not used code
-			/*$firstauthorpos = strripos($content,"<Author");
-			$secondauthorpos = strripos($content,"</Author>");
-			$firstcreatorpos = strripos($content,"<Creator");
-			$secondcreatorpos = strripos($content,"</Creator>");*/
+
 }
-# CC: removed not used code
-/*
-		if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-			echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
-		} else {
-			echo "Sorry, there was an error uploading your file.";
+
+function processFiles() {
+
+	if (!isset($_FILES['filetoconvert'])) {
+		return;
+	}
+
+	$files = array_filter($_FILES["filetoconvert"]["tmp_name"]);
+	
+	$total = count($files);
+
+	# Check if the files are valid:
+	for( $i=0 ; $i < $total ; $i++ ) {
+		# Check if the file is valid:
+		# TODO: fileIsValid will report the error, so in case is not valid, no message will be shown here.
+		if (!fileIsValid($i)) {
+			echo "The file " . $_FILES["filetoconvert"]["name"][$i] . " is not valid";
+			exit();
 		}
-	}*/
-/*input[type="file"]{
-	float: left;
-    margin: 5px;
-    padding: 15px;
-    width: 350px;
-    height: 50px;
-    border-radius: 10px;
-    cursor: pointer; cursor: hand;
-    border-top-style: none;
-    border-left-style: none;    
-    color: #fff;
-    background: #ADD8E6;
-    border-bottom: 3px solid #216895;
-    border-right: 3px solid #216895;
-  
-}*/
+	}
+	
+	if ($total == 1) {
+		# Get the filecontent:
+		$content = getFileOriginalContent(0);
+		if ($content === "") {
+			echo "The file can't be readed";
+		} else {
+			# Convert the Polar content to Garmin content:
+			# CC: Move testing data to a proc like: getTestingContent and before the if
+			//$content = '<Name>Correr</Name><Extensions></Extensions></Plan></Training><Creator xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Device_t"><Name>Polar M400</Name><UnitId>0</UnitId><ProductID>22</ProductID><Version><VersionMajor>1</VersionMajor><VersionMinor>8</VersionMinor><BuildMajor>0</BuildMajor><BuildMinor>0</BuildMinor></Version></Creator></Activity></Activities><Author xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Application_t"><Name>Polar Connect</Name><Build><Version><VersionMajor>0</VersionMajor><VersionMinor>0</VersionMinor></Version></Build><LangID>EN</LangID><PartNumber>XXX-XXXXX-XX</PartNumber></Author></TrainingCenterDatabase>';
+	
+			# file content have all data, delete problematic content:
+			transformContent($content);
+			# Return the content to the user:
+			header("Content-type: text/plain");
+			header("Content-Disposition: attachment; filename=" . basename($_FILES["filetoconvert"]["name"][0]));
+			echo $content;
+			exit();
+		}
+			
+	} else {
+		
+		$zip = new ZipArchive(); // Load zip library
+		$zip_name = "convertedfiles" . ".zip"; // Zip name
+		if($zip->open($zip_name, ZIPARCHIVE::CREATE)!==TRUE) {
+			// Opening zip file to load files
+			$error .= "* Sorry ZIP creation failed at this time";
+		}
+		
+		for( $i=0 ; $i < $total ; $i++ ) {
+			# Get the filecontent:
+			$content = getFileOriginalContent($i);
+			if ($content === "") {
+				echo "The file can't be readed";
+			} else {
+				# Convert the Polar content to Garmin content:
+				# CC: Move testing data to a proc like: getTestingContent
+				//$content = '<Name>Correr</Name><Extensions></Extensions></Plan></Training><Creator xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Device_t"><Name>Polar M400</Name><UnitId>0</UnitId><ProductID>22</ProductID><Version><VersionMajor>1</VersionMajor><VersionMinor>8</VersionMinor><BuildMajor>0</BuildMajor><BuildMinor>0</BuildMinor></Version></Creator></Activity></Activities><Author xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Application_t"><Name>Polar Connect</Name><Build><Version><VersionMajor>0</VersionMajor><VersionMinor>0</VersionMinor></Version></Build><LangID>EN</LangID><PartNumber>XXX-XXXXX-XX</PartNumber></Author></TrainingCenterDatabase>';
+				
+				# file content have all data, delete problematic content:
+				transformContent($content);
+				$zip->addFromString($_FILES["filetoconvert"]["name"][$i], $content);
+				
+			}
+			
+			
+		}
+		
+		$zip->close();
+		
+		if(file_exists($zip_name))
+		{
+			
+			// push to download the zip
+			header('Content-type: application/zip');
+			header('Content-Disposition: attachment; filename="'.$zip_name.'"');
+			readfile($zip_name);
+			// remove zip file if exists in temp path
+			unlink($zip_name);
+		}
+		
+	}
+}
 
 ?>
