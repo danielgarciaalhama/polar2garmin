@@ -21,12 +21,6 @@ function fileIsValid($i) {
 	
 }
 
-function setFileNewContent ($i, &$content) {
-	
-	file_put_contents($_FILES["filetoconvert"]["tmp_name"][$i] , $content);
-	
-}
-
 function getFileOriginalContent ($i) {
 	# TODO: The empty result should generate an error message
 	$content = "";

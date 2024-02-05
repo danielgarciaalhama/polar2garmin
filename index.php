@@ -9,6 +9,10 @@ $inipath = php_ini_loaded_file();
 include("p2gconfig.php");
 include("filesmanagement.php");
 
+if (RUN_TESTS) {
+	include("tests.php");
+	runTests();
+}
 
 processFiles();
 
